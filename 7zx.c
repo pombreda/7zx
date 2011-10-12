@@ -16,6 +16,8 @@
 #if defined(USE_WINDOWS_FILE)
 #include <windows.h>
 
+#define CR  "\r\n"
+
 static int my_puts(const char *s) {
     DWORD ReadBytes;
 
@@ -27,6 +29,8 @@ static int my_puts(const char *s) {
 #elif defined(USE_TINY)
 #include "TINYFILE.H"
 
+#define CR  "\r\n"
+
 static int my_puts(const char *s) {
     return tiny_write(HSTDOUT, strlen(s), s);
 }
@@ -34,12 +38,14 @@ static int my_puts(const char *s) {
 #else
 #include <stdio.h>
 
-#define my_puts(s) puts((s))
+#define CR  "\n"
+
+#define my_puts(s) fputs((s), stdout)
 
 #endif
 
 
-#define PrintError(sz)  my_puts("\r\nERROR:" sz)
+#define PrintError(sz)  my_puts(CR "ERROR:" sz)
 
 
 int MY_CDECL main(int numargs, char *args[])
@@ -53,7 +59,7 @@ int MY_CDECL main(int numargs, char *args[])
 
   if (numargs == 1)
   {
-    my_puts("\r\n7z Decoder " MY_VERSION_COPYRIGHT_DATE "\r\n\tUsage: 7zx <archive_name>\r\n");
+    my_puts(CR "7z Decoder " MY_VERSION_COPYRIGHT_DATE CR "\tUsage: 7zx <archive_name>" CR);
     return 0;
   }
   if (numargs != 2)
@@ -106,7 +112,7 @@ int MY_CDECL main(int numargs, char *args[])
         size_t outSizeProcessed;
         CSzFileItem *f = db.db.Files + i;
         
-        my_puts("\r\n");
+        my_puts(CR);
         
         if (f->IsDir) {
           my_puts("Dir ");
@@ -164,7 +170,7 @@ int MY_CDECL main(int numargs, char *args[])
   File_Close(&archiveStream.file);
   if (res == SZ_OK)
   {
-    my_puts("\r\n\tEverything is Ok\r\n");
+    my_puts(CR "\tEverything is Ok" CR);
     return 0;
   }
   if (res == SZ_ERROR_UNSUPPORTED)
@@ -174,6 +180,6 @@ int MY_CDECL main(int numargs, char *args[])
   else if (res == SZ_ERROR_CRC)
     PrintError("CRC error");
   else
-    my_puts("\r\nERROR !!!\r\n");
+    my_puts(CR "ERROR !!!" CR);
   return res;
 }
